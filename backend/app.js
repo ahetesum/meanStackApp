@@ -4,7 +4,8 @@ const Post = require('./models/post');
 
 const app = express();
 
-mongoose.connect("mongodb+srv://DatabaseUser:9916708968@cluster0.rymui.mongodb.net/zoomData?retryWrites=true&w=majority").then(()=>{
+mongoose.connect("mongodb+srv://DatabaseUser:9916708968@cluster0.rymui.mongodb.net/zoomData?retryWrites=true&w=majority")
+.then(()=>{
 console.log("Connected to Database");
 })
 .catch(()=>{
@@ -28,11 +29,13 @@ app.post('/api/posts',(req,res,next)=>{
     title:req.body.title,
     description:req.body.description
   });
-  post.save();
-  console.log(post);
-  res.status(201).json({
-    message:'Post Created Sucessfully'
+  post.save().then((result)=>{
+    res.status(201).json({
+      message:'Post Created Sucessfully',
+      postId:result._id
+    });
   });
+
 
 })
 
@@ -46,6 +49,16 @@ app.get('/api/posts',(req,res,next)=>{
     })
   });
 
+  app.delete('/api/posts/:postId',(req,res,next)=>{
+
+      console.log("Delete this -- "+req.params.postId);
+      Post.deleteOne({_id:req.params.postId}).then(()=>{
+        res.status(200).json({
+          message:"Post Deleted sucessfully",
+        })
+      })
+
+    });
 
 });
 
